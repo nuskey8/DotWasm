@@ -1,6 +1,8 @@
 # DotWasm
 A WebAssembly runtime implemented in C# for .NET
 
+![hero](assets/hero.png)
+
 > [!CAUTION]
 > DotWasm is currently in alpha. It is not suitable for production use and may undergo breaking changes without notice.
 
