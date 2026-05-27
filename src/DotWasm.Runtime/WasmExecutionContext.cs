@@ -2025,300 +2025,8 @@ internal sealed class WasmExecutionContext
                         ExecuteGCInstruction(instance, instr, ref localBase, ref ip);
                         break;
                     case WasmOpCodes.FCExtension:
-                    {
-                        var extCode = Unsafe.As<FCExtensionInstruction>(instr).ExtensionCode;
-                        switch (extCode)
-                        {
-                            case WasmOpCodes.I32TruncSatF32S:
-                            {
-                                var val = valueStack.UnsafePop().F32;
-                                valueStack.Push(WasmValue.FromI32(TruncHelper.TruncSatI32S(val)));
-                                break;
-                            }
-                            case WasmOpCodes.I32TruncSatF32U:
-                            {
-                                var val = valueStack.UnsafePop().F32;
-                                valueStack.Push(
-                                    WasmValue.FromI32(unchecked((int)TruncHelper.TruncSatI32U(val)))
-                                );
-                                break;
-                            }
-                            case WasmOpCodes.I32TruncSatF64S:
-                            {
-                                var val = valueStack.UnsafePop().F64;
-                                valueStack.Push(WasmValue.FromI32(TruncHelper.TruncSatI32S(val)));
-                                break;
-                            }
-                            case WasmOpCodes.I32TruncSatF64U:
-                            {
-                                var val = valueStack.UnsafePop().F64;
-                                valueStack.Push(
-                                    WasmValue.FromI32(unchecked((int)TruncHelper.TruncSatI32U(val)))
-                                );
-                                break;
-                            }
-                            case WasmOpCodes.I64TruncSatF32S:
-                            {
-                                var val = valueStack.UnsafePop().F32;
-                                valueStack.Push(WasmValue.FromI64(TruncHelper.TruncSatI64S(val)));
-                                break;
-                            }
-                            case WasmOpCodes.I64TruncSatF32U:
-                            {
-                                var val = valueStack.UnsafePop().F32;
-                                valueStack.Push(
-                                    WasmValue.FromI64(
-                                        unchecked((long)TruncHelper.TruncSatI64U(val))
-                                    )
-                                );
-                                break;
-                            }
-                            case WasmOpCodes.I64TruncSatF64S:
-                            {
-                                var val = valueStack.UnsafePop().F64;
-                                valueStack.Push(WasmValue.FromI64(TruncHelper.TruncSatI64S(val)));
-                                break;
-                            }
-                            case WasmOpCodes.I64TruncSatF64U:
-                            {
-                                var val = valueStack.UnsafePop().F64;
-                                valueStack.Push(
-                                    WasmValue.FromI64(
-                                        unchecked((long)TruncHelper.TruncSatI64U(val))
-                                    )
-                                );
-                                break;
-                            }
-                            case WasmOpCodes.MemoryInit:
-                            {
-                                var memInit = Unsafe.As<MemoryInitInstruction>(instr);
-                                var length = valueStack.UnsafePop().I32;
-                                var srcOffset = valueStack.UnsafePop().I32;
-                                var memMemory = instance.GetMemoryInstance(
-                                    (int)memInit.MemoryIndex
-                                );
-                                var destOffset = PopMemoryAddress(memMemory);
-                                var dataSegment = instance.Module.Data[(int)memInit.DataIndex];
-                                var isDropped = instance.IsDataSegmentDropped(
-                                    (int)memInit.DataIndex
-                                );
-                                if (!isDropped)
-                                    WasmTrapException.ThrowIfNot(
-                                        dataSegment.Mode == DataSegmentMode.Passive,
-                                        "Data segment must be passive"
-                                    );
-                                var memoryAddress = CalcMemoryAddress(
-                                    destOffset,
-                                    0,
-                                    length,
-                                    memMemory.Data.Length
-                                );
-                                var dataLength = isDropped ? 0 : dataSegment.Data.Length;
-                                WasmTrapException.ThrowIfNot(
-                                    srcOffset >= 0
-                                        && length >= 0
-                                        && (ulong)(uint)srcOffset + (uint)length
-                                            <= (uint)dataLength,
-                                    "Data segment access out of bounds"
-                                );
-                                dataSegment
-                                    .Data.Span.Slice(srcOffset, length)
-                                    .CopyTo(memMemory.Data.Slice(memoryAddress, length));
-                                break;
-                            }
-                            case WasmOpCodes.DataDrop:
-                            {
-                                var dataDrop = Unsafe.As<DataDropInstruction>(instr);
-                                instance.DropDataSegment((int)dataDrop.DataIndex);
-                                break;
-                            }
-                            case WasmOpCodes.MemoryCopy:
-                            {
-                                var memCopy = Unsafe.As<MemoryCopyInstruction>(instr);
-                                var destinationMemory = instance.GetMemoryInstance(
-                                    (int)memCopy.DestinationMemoryIndex
-                                );
-                                var sourceMemory = instance.GetMemoryInstance(
-                                    (int)memCopy.SourceMemoryIndex
-                                );
-                                var length =
-                                    destinationMemory.AddressType != sourceMemory.AddressType
-                                        ? valueStack.UnsafePop().I32
-                                        : PopPageCount(sourceMemory);
-                                var sourceOffset = PopMemoryAddress(sourceMemory);
-                                var destinationOffset = PopMemoryAddress(destinationMemory);
-                                var destinationAddress = CalcMemoryAddress(
-                                    destinationOffset,
-                                    0,
-                                    length,
-                                    destinationMemory.Data.Length
-                                );
-                                var sourceAddress = CalcMemoryAddress(
-                                    sourceOffset,
-                                    0,
-                                    length,
-                                    sourceMemory.Data.Length
-                                );
-                                sourceMemory
-                                    .Data.Slice(sourceAddress, length)
-                                    .CopyTo(
-                                        destinationMemory.Data.Slice(destinationAddress, length)
-                                    );
-                                break;
-                            }
-                            case WasmOpCodes.MemoryFill:
-                            {
-                                var memFill = Unsafe.As<MemoryFillInstruction>(instr);
-                                var memMemory = instance.GetMemoryInstance(
-                                    (int)memFill.MemoryIndex
-                                );
-                                var length = PopPageCount(memMemory);
-                                var fillValue = valueStack.UnsafePop().I32;
-                                var destinationOffset = PopMemoryAddress(memMemory);
-                                var destinationAddress = CalcMemoryAddress(
-                                    destinationOffset,
-                                    0,
-                                    length,
-                                    memMemory.Data.Length
-                                );
-                                memMemory
-                                    .Data.Slice(destinationAddress, length)
-                                    .Fill((byte)fillValue);
-                                break;
-                            }
-                            case WasmOpCodes.TableInit:
-                            {
-                                var tableInit = Unsafe.As<TableInitInstruction>(instr);
-                                var table = instance.GetTableInstance((int)tableInit.TableIndex);
-                                var length = valueStack.UnsafePop().I32;
-                                var sourceOffset = valueStack.UnsafePop().I32;
-                                var destinationOffset = PopTableIndex(table);
-                                var element = instance.Module.Elements[(int)tableInit.ElementIndex];
-                                var isDropped = instance.IsElementSegmentDropped(
-                                    (int)tableInit.ElementIndex
-                                );
-                                if (!isDropped)
-                                    WasmTrapException.ThrowIfNot(
-                                        element.Mode == ElementMode.Passive,
-                                        "Element segment must be passive"
-                                    );
-                                var tableAddress = CalcTableAddress(
-                                    destinationOffset,
-                                    length,
-                                    table.References.Length
-                                );
-                                var elementValues = instance.GetElementSegment(
-                                    (int)tableInit.ElementIndex
-                                );
-                                var elementLength = isDropped ? 0 : elementValues.Length;
-                                WasmTrapException.ThrowIfNot(
-                                    sourceOffset >= 0
-                                        && length >= 0
-                                        && (ulong)(uint)sourceOffset + (uint)length
-                                            <= (uint)elementLength,
-                                    "Element segment access out of bounds"
-                                );
-                                elementValues
-                                    .Slice(sourceOffset, length)
-                                    .CopyTo(table.References.Slice(tableAddress, length));
-                                break;
-                            }
-                            case WasmOpCodes.ElemDrop:
-                            {
-                                var elemDrop = Unsafe.As<ElemDropInstruction>(instr);
-                                instance.DropElementSegment((int)elemDrop.ElementIndex);
-                                break;
-                            }
-                            case WasmOpCodes.TableCopy:
-                            {
-                                var tableCopy = Unsafe.As<TableCopyInstruction>(instr);
-                                var destinationTable = instance.GetTableInstance(
-                                    (int)tableCopy.DestinationTableIndex
-                                );
-                                var sourceTable = instance.GetTableInstance(
-                                    (int)tableCopy.SourceTableIndex
-                                );
-                                var length =
-                                    destinationTable.AddressType != sourceTable.AddressType
-                                        ? valueStack.UnsafePop().I32
-                                        : PopTableIndex(sourceTable);
-                                var sourceOffset = PopTableIndex(sourceTable);
-                                var destinationOffset = PopTableIndex(destinationTable);
-                                var dstAddr = CalcTableAddress(
-                                    destinationOffset,
-                                    length,
-                                    destinationTable.References.Length
-                                );
-                                var srcAddr = CalcTableAddress(
-                                    sourceOffset,
-                                    length,
-                                    sourceTable.References.Length
-                                );
-                                sourceTable
-                                    .References.Slice(srcAddr, length)
-                                    .CopyTo(destinationTable.References.Slice(dstAddr, length));
-                                break;
-                            }
-                            case WasmOpCodes.TableGrow:
-                            {
-                                var tableGrow = Unsafe.As<TableGrowInstruction>(instr);
-                                var table = instance.GetTableInstance((int)tableGrow.TableIndex);
-                                var delta = PopTableIndex(table);
-                                var growValue = valueStack.UnsafePop();
-                                var oldSize = table.References.Length;
-                                ValidateTableReference(instance, table, growValue);
-                                if (
-                                    delta < 0
-                                    || (
-                                        table.Max.HasValue
-                                        && (ulong)(uint)oldSize + (uint)delta > table.Max.Value
-                                    )
-                                )
-                                    PushTableIndex(table, -1);
-                                else
-                                {
-                                    try
-                                    {
-                                        table.Grow(delta, growValue);
-                                        PushTableIndex(table, oldSize);
-                                    }
-                                    catch (OutOfMemoryException)
-                                    {
-                                        PushTableIndex(table, -1);
-                                    }
-                                }
-                                break;
-                            }
-                            case WasmOpCodes.TableSize:
-                            {
-                                var tableSize = Unsafe.As<TableSizeInstruction>(instr);
-                                var table = instance.GetTableInstance((int)tableSize.TableIndex);
-                                PushTableIndex(table, table.References.Length);
-                                break;
-                            }
-                            case WasmOpCodes.TableFill:
-                            {
-                                var tableFill = Unsafe.As<TableFillInstruction>(instr);
-                                var table = instance.GetTableInstance((int)tableFill.TableIndex);
-                                var length = PopTableIndex(table);
-                                var fillValue = valueStack.UnsafePop();
-                                var destinationOffset = PopTableIndex(table);
-                                var tableAddress = CalcTableAddress(
-                                    destinationOffset,
-                                    length,
-                                    table.References.Length
-                                );
-                                ValidateTableReference(instance, table, fillValue);
-                                table.References.Slice(tableAddress, length).Fill(fillValue);
-                                break;
-                            }
-                            default:
-                                throw new NotImplementedException(
-                                    $"Unsupported opcode: 0xFC 0x{extCode:X2}"
-                                );
-                        }
+                        ExecuteFCExtensionInstruction(instance, instr);
                         break;
-                    }
                     case WasmOpCodes.SIMDExtension:
                         ExecuteSimdInstruction(instance, instr, ref localBase, ref ip);
                         break;
@@ -2333,9 +2041,303 @@ internal sealed class WasmExecutionContext
         }
         finally
         {
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<WasmValue>())
-                locals.Clear();
+            locals.Clear();
             localStack.Truncate(localStackBase);
+        }
+    }
+
+    void ExecuteFCExtensionInstruction(WasmInstance instance, Instruction instr)
+    {
+        var extCode = Unsafe.As<FCExtensionInstruction>(instr).ExtensionCode;
+        switch (extCode)
+        {
+            case WasmOpCodes.I32TruncSatF32S:
+            {
+                var val = valueStack.UnsafePop().F32;
+                valueStack.Push(WasmValue.FromI32(TruncHelper.TruncSatI32S(val)));
+                break;
+            }
+            case WasmOpCodes.I32TruncSatF32U:
+            {
+                var val = valueStack.UnsafePop().F32;
+                valueStack.Push(
+                    WasmValue.FromI32(unchecked((int)TruncHelper.TruncSatI32U(val)))
+                );
+                break;
+            }
+            case WasmOpCodes.I32TruncSatF64S:
+            {
+                var val = valueStack.UnsafePop().F64;
+                valueStack.Push(WasmValue.FromI32(TruncHelper.TruncSatI32S(val)));
+                break;
+            }
+            case WasmOpCodes.I32TruncSatF64U:
+            {
+                var val = valueStack.UnsafePop().F64;
+                valueStack.Push(
+                    WasmValue.FromI32(unchecked((int)TruncHelper.TruncSatI32U(val)))
+                );
+                break;
+            }
+            case WasmOpCodes.I64TruncSatF32S:
+            {
+                var val = valueStack.UnsafePop().F32;
+                valueStack.Push(WasmValue.FromI64(TruncHelper.TruncSatI64S(val)));
+                break;
+            }
+            case WasmOpCodes.I64TruncSatF32U:
+            {
+                var val = valueStack.UnsafePop().F32;
+                valueStack.Push(
+                    WasmValue.FromI64(
+                        unchecked((long)TruncHelper.TruncSatI64U(val))
+                    )
+                );
+                break;
+            }
+            case WasmOpCodes.I64TruncSatF64S:
+            {
+                var val = valueStack.UnsafePop().F64;
+                valueStack.Push(WasmValue.FromI64(TruncHelper.TruncSatI64S(val)));
+                break;
+            }
+            case WasmOpCodes.I64TruncSatF64U:
+            {
+                var val = valueStack.UnsafePop().F64;
+                valueStack.Push(
+                    WasmValue.FromI64(
+                        unchecked((long)TruncHelper.TruncSatI64U(val))
+                    )
+                );
+                break;
+            }
+            case WasmOpCodes.MemoryInit:
+            {
+                var memInit = Unsafe.As<MemoryInitInstruction>(instr);
+                var length = valueStack.UnsafePop().I32;
+                var srcOffset = valueStack.UnsafePop().I32;
+                var memMemory = instance.GetMemoryInstance(
+                    (int)memInit.MemoryIndex
+                );
+                var destOffset = PopMemoryAddress(memMemory);
+                var dataSegment = instance.Module.Data[(int)memInit.DataIndex];
+                var isDropped = instance.IsDataSegmentDropped(
+                    (int)memInit.DataIndex
+                );
+                if (!isDropped)
+                    WasmTrapException.ThrowIfNot(
+                        dataSegment.Mode == DataSegmentMode.Passive,
+                        "Data segment must be passive"
+                    );
+                var memoryAddress = CalcMemoryAddress(
+                    destOffset,
+                    0,
+                    length,
+                    memMemory.Data.Length
+                );
+                var dataLength = isDropped ? 0 : dataSegment.Data.Length;
+                WasmTrapException.ThrowIfNot(
+                    srcOffset >= 0
+                        && length >= 0
+                        && (ulong)(uint)srcOffset + (uint)length
+                            <= (uint)dataLength,
+                    "Data segment access out of bounds"
+                );
+                dataSegment
+                    .Data.Span.Slice(srcOffset, length)
+                    .CopyTo(memMemory.Data.Slice(memoryAddress, length));
+                break;
+            }
+            case WasmOpCodes.DataDrop:
+            {
+                var dataDrop = Unsafe.As<DataDropInstruction>(instr);
+                instance.DropDataSegment((int)dataDrop.DataIndex);
+                break;
+            }
+            case WasmOpCodes.MemoryCopy:
+            {
+                var memCopy = Unsafe.As<MemoryCopyInstruction>(instr);
+                var destinationMemory = instance.GetMemoryInstance(
+                    (int)memCopy.DestinationMemoryIndex
+                );
+                var sourceMemory = instance.GetMemoryInstance(
+                    (int)memCopy.SourceMemoryIndex
+                );
+                var length =
+                    destinationMemory.AddressType != sourceMemory.AddressType
+                        ? valueStack.UnsafePop().I32
+                        : PopPageCount(sourceMemory);
+                var sourceOffset = PopMemoryAddress(sourceMemory);
+                var destinationOffset = PopMemoryAddress(destinationMemory);
+                var destinationAddress = CalcMemoryAddress(
+                    destinationOffset,
+                    0,
+                    length,
+                    destinationMemory.Data.Length
+                );
+                var sourceAddress = CalcMemoryAddress(
+                    sourceOffset,
+                    0,
+                    length,
+                    sourceMemory.Data.Length
+                );
+                sourceMemory
+                    .Data.Slice(sourceAddress, length)
+                    .CopyTo(
+                        destinationMemory.Data.Slice(destinationAddress, length)
+                    );
+                break;
+            }
+            case WasmOpCodes.MemoryFill:
+            {
+                var memFill = Unsafe.As<MemoryFillInstruction>(instr);
+                var memMemory = instance.GetMemoryInstance(
+                    (int)memFill.MemoryIndex
+                );
+                var length = PopPageCount(memMemory);
+                var fillValue = valueStack.UnsafePop().I32;
+                var destinationOffset = PopMemoryAddress(memMemory);
+                var destinationAddress = CalcMemoryAddress(
+                    destinationOffset,
+                    0,
+                    length,
+                    memMemory.Data.Length
+                );
+                memMemory
+                    .Data.Slice(destinationAddress, length)
+                    .Fill((byte)fillValue);
+                break;
+            }
+            case WasmOpCodes.TableInit:
+            {
+                var tableInit = Unsafe.As<TableInitInstruction>(instr);
+                var table = instance.GetTableInstance((int)tableInit.TableIndex);
+                var length = valueStack.UnsafePop().I32;
+                var sourceOffset = valueStack.UnsafePop().I32;
+                var destinationOffset = PopTableIndex(table);
+                var element = instance.Module.Elements[(int)tableInit.ElementIndex];
+                var isDropped = instance.IsElementSegmentDropped(
+                    (int)tableInit.ElementIndex
+                );
+                if (!isDropped)
+                    WasmTrapException.ThrowIfNot(
+                        element.Mode == ElementMode.Passive,
+                        "Element segment must be passive"
+                    );
+                var tableAddress = CalcTableAddress(
+                    destinationOffset,
+                    length,
+                    table.References.Length
+                );
+                var elementValues = instance.GetElementSegment(
+                    (int)tableInit.ElementIndex
+                );
+                var elementLength = isDropped ? 0 : elementValues.Length;
+                WasmTrapException.ThrowIfNot(
+                    sourceOffset >= 0
+                        && length >= 0
+                        && (ulong)(uint)sourceOffset + (uint)length
+                            <= (uint)elementLength,
+                    "Element segment access out of bounds"
+                );
+                elementValues
+                    .Slice(sourceOffset, length)
+                    .CopyTo(table.References.Slice(tableAddress, length));
+                break;
+            }
+            case WasmOpCodes.ElemDrop:
+            {
+                var elemDrop = Unsafe.As<ElemDropInstruction>(instr);
+                instance.DropElementSegment((int)elemDrop.ElementIndex);
+                break;
+            }
+            case WasmOpCodes.TableCopy:
+            {
+                var tableCopy = Unsafe.As<TableCopyInstruction>(instr);
+                var destinationTable = instance.GetTableInstance(
+                    (int)tableCopy.DestinationTableIndex
+                );
+                var sourceTable = instance.GetTableInstance(
+                    (int)tableCopy.SourceTableIndex
+                );
+                var length =
+                    destinationTable.AddressType != sourceTable.AddressType
+                        ? valueStack.UnsafePop().I32
+                        : PopTableIndex(sourceTable);
+                var sourceOffset = PopTableIndex(sourceTable);
+                var destinationOffset = PopTableIndex(destinationTable);
+                var dstAddr = CalcTableAddress(
+                    destinationOffset,
+                    length,
+                    destinationTable.References.Length
+                );
+                var srcAddr = CalcTableAddress(
+                    sourceOffset,
+                    length,
+                    sourceTable.References.Length
+                );
+                sourceTable
+                    .References.Slice(srcAddr, length)
+                    .CopyTo(destinationTable.References.Slice(dstAddr, length));
+                break;
+            }
+            case WasmOpCodes.TableGrow:
+            {
+                var tableGrow = Unsafe.As<TableGrowInstruction>(instr);
+                var table = instance.GetTableInstance((int)tableGrow.TableIndex);
+                var delta = PopTableIndex(table);
+                var growValue = valueStack.UnsafePop();
+                var oldSize = table.References.Length;
+                ValidateTableReference(instance, table, growValue);
+                if (
+                    delta < 0
+                    || (
+                        table.Max.HasValue
+                        && (ulong)(uint)oldSize + (uint)delta > table.Max.Value
+                    )
+                )
+                    PushTableIndex(table, -1);
+                else
+                {
+                    try
+                    {
+                        table.Grow(delta, growValue);
+                        PushTableIndex(table, oldSize);
+                    }
+                    catch (OutOfMemoryException)
+                    {
+                        PushTableIndex(table, -1);
+                    }
+                }
+                break;
+            }
+            case WasmOpCodes.TableSize:
+            {
+                var tableSize = Unsafe.As<TableSizeInstruction>(instr);
+                var table = instance.GetTableInstance((int)tableSize.TableIndex);
+                PushTableIndex(table, table.References.Length);
+                break;
+            }
+            case WasmOpCodes.TableFill:
+            {
+                var tableFill = Unsafe.As<TableFillInstruction>(instr);
+                var table = instance.GetTableInstance((int)tableFill.TableIndex);
+                var length = PopTableIndex(table);
+                var fillValue = valueStack.UnsafePop();
+                var destinationOffset = PopTableIndex(table);
+                var tableAddress = CalcTableAddress(
+                    destinationOffset,
+                    length,
+                    table.References.Length
+                );
+                ValidateTableReference(instance, table, fillValue);
+                table.References.Slice(tableAddress, length).Fill(fillValue);
+                break;
+            }
+            default:
+                throw new NotImplementedException(
+                    $"Unsupported opcode: 0xFC 0x{extCode:X2}"
+                );
         }
     }
 
