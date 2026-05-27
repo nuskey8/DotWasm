@@ -35,13 +35,13 @@ dotnet add DotWasm
 
 ## Package Structure
 
-| Package            | NuGet                                                                                                            | Description                                           |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| DotWasm            | [![NuGet](https://img.shields.io/nuget/v/DotWasm)](https://www.nuget.org/packages/DotWasm)                       | Bundle containing all packages                        |
-| DotWasm.Models     | [![NuGet](https://img.shields.io/nuget/v/DotWasm.Models)](https://www.nuget.org/packages/DotWasm.Models)         | C# models for Wasm binaries                           |
-| DotWasm.Encoding   | [![NuGet](https://img.shields.io/nuget/v/DotWasm.Encoding)](https://www.nuget.org/packages/DotWasm.Encoding)     | Package providing Wasm binary decoding functionality  |
-| DotWasm.Validation | [![NuGet](https://img.shields.io/nuget/v/DotWasm.Validation)](https://www.nuget.org/packages/DotWasm.Validation) | Package providing Wasm binary validation              |
-| DotWasm.Runtime    | [![NuGet](https://img.shields.io/nuget/v/DotWasm.Runtime)](https://www.nuget.org/packages/DotWasm.Runtime)       | Package providing Wasm binary execution functionality |
+| Package            | Latest Version                                                                                                   | Description                                            |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| DotWasm            | [![NuGet](https://img.shields.io/nuget/v/DotWasm)](https://www.nuget.org/packages/DotWasm)                       | Bundle containing all packages                         |
+| DotWasm.Models     | [![NuGet](https://img.shields.io/nuget/v/DotWasm.Models)](https://www.nuget.org/packages/DotWasm.Models)         | C# models for Wasm binaries                            |
+| DotWasm.Encoding   | [![NuGet](https://img.shields.io/nuget/v/DotWasm.Encoding)](https://www.nuget.org/packages/DotWasm.Encoding)     | Package providing Wasm binary decoding functionality   |
+| DotWasm.Validation | [![NuGet](https://img.shields.io/nuget/v/DotWasm.Validation)](https://www.nuget.org/packages/DotWasm.Validation) | Package providing Wasm binary validation functionality |
+| DotWasm.Runtime    | [![NuGet](https://img.shields.io/nuget/v/DotWasm.Runtime)](https://www.nuget.org/packages/DotWasm.Runtime)       | Package providing Wasm binary execution functionality  |
 
 ## Quick Start
 

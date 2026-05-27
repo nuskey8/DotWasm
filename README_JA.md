@@ -35,7 +35,7 @@ dotnet add DotWasm
 
 ## パッケージ構成
 
-| Package            | NuGet                                                                                                            | 説明                                               |
+| Package            | Latest Version                                                                                                   | 説明                                               |
 | ------------------ | ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
 | DotWasm            | [![NuGet](https://img.shields.io/nuget/v/DotWasm)](https://www.nuget.org/packages/DotWasm)                       | 全てのパッケージを含んだバンドル                   |
 | DotWasm.Models     | [![NuGet](https://img.shields.io/nuget/v/DotWasm.Models)](https://www.nuget.org/packages/DotWasm.Models)         | wasmバイナリのC#モデルを提供するパッケージ         |
