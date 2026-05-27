@@ -1,0 +1,56 @@
+name: Publish to NuGet
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build-pack:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate release versions
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PROPS_VERSION=$(grep -oPm1 '(?<=<PackageVersion>)[^<]+' Directory.Build.props)
+
+          echo "Tag version:   ${TAG_VERSION}"
+          echo "Props version: ${PROPS_VERSION}"
+          echo "Unity version: ${UNITY_VERSION}"
+
+          if [ "${TAG_VERSION}" != "${PROPS_VERSION}" ]; then
+            echo "Version mismatch detected."
+            exit 1
+          fi
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 11.0.x
+
+      - name: Restore
+        run: dotnet restore DotWasm.slnx
+
+      - name: Pack
+        run: |
+          dotnet pack src/DotWasm/DotWasm.csproj -c Release --no-restore -o ./artifacts/nuget
+          dotnet pack src/DotWasm.Encoding/DotWasm.Encoding.csproj -c Release --no-restore -o ./artifacts/nuget
+          dotnet pack src/DotWasm.Models/DotWasm.Models.csproj -c Release --no-restore -o ./artifacts/nuget
+          dotnet pack src/DotWasm.Validation/DotWasm.Validation.csproj -c Release --no-restore -o ./artifacts/nuget
+          dotnet pack src/DotWasm.Runtime/DotWasm.Runtime.csproj -c Release --no-restore -o ./artifacts/nuget
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: artifacts/nuget/*.nupkg
+
+      - name: Publish to NuGet
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: dotnet nuget push artifacts/nuget/*.nupkg --api-key "${{ secrets.NUGET_API_KEY }}" --source "https://api.nuget.org/v3/index.json" --skip-duplicate
