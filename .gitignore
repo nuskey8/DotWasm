@@ -1,0 +1,5 @@
+.vs
+.vscode
+.idea
+global.json
+.DS_Store

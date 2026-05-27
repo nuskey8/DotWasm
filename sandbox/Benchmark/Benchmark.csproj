@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <Configuration>Release</Configuration>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
+    <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.14.0" Condition="'$(OS)' == 'Windows_NT'" />
+    <PackageReference Include="WaaS" Version="0.2.3" />
+    <PackageReference Include="WACS" Version="0.15.22" />
+    <PackageReference Include="Wasmtime" Version="34.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\DotWasm\DotWasm.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="collatz_bench.wasm" />
+    <EmbeddedResource Include="grayscale_bench.wasm" />
+  </ItemGroup>
+</Project>

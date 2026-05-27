@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/sandbox/">
+    <Project Path="sandbox/Benchmark/Benchmark.csproj" />
+    <Project Path="sandbox/ConsoleApp1/ConsoleApp1.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/DotWasm.Encoding/DotWasm.Encoding.csproj" />
+    <Project Path="src/DotWasm.Models/DotWasm.Models.csproj" />
+    <Project Path="src/DotWasm.Runtime/DotWasm.Runtime.csproj" />
+    <Project Path="src/DotWasm.Validation/DotWasm.Validation.csproj" />
+    <Project Path="src/DotWasm/DotWasm.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DotWasm.SpecTest/DotWasm.SpecTest.csproj" />
+  </Folder>
+</Solution>

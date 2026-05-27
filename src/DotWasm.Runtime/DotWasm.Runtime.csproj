@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\DotWasm.Models\DotWasm.Models.csproj" />
+    <ProjectReference Include="..\DotWasm.Encoding\DotWasm.Encoding.csproj" />
+    <ProjectReference Include="..\DotWasm.Validation\DotWasm.Validation.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFrameworks>net11.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+</Project>
