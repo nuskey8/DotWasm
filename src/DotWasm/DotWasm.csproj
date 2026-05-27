@@ -14,4 +14,9 @@
     <PackageTags>wasm;interpreter</PackageTags>
     <Description>A WebAssembly runtime implemented in C# for .NET</Description>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="README.md" />
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="LICENSE" />
+  </ItemGroup>
 </Project>

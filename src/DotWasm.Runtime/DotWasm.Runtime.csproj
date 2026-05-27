@@ -16,4 +16,9 @@
     <PackageTags>wasm;interpreter</PackageTags>
     <Description>Runtime implementation for DotWasm.</Description>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="README.md" />
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="LICENSE" />
+  </ItemGroup>
 </Project>
