@@ -3,6 +3,12 @@ A WebAssembly runtime implemented in C# for .NET
 
 ![hero](assets/hero.png)
 
+[![NuGet](https://img.shields.io/nuget/v/DotWasm.svg)](https://www.nuget.org/packages/DotWasm)
+[![Releases](https://img.shields.io/github/release/nuskey8/DotWasm.svg)](https://github.com/nuskey8/DotWasm/releases)
+[![license](https://img.shields.io/badge/LICENSE-MIT-green.svg)](LICENSE)
+
+[English](README.md) | 日本語
+
 > [!CAUTION]
 > DotWasmは現在アルファ版です。本番環境での利用には適しておらず、予告なく破壊的変更が行われる可能性があります。
 

@@ -3,6 +3,12 @@ A WebAssembly runtime implemented in C# for .NET
 
 ![hero](assets/hero.png)
 
+[![NuGet](https://img.shields.io/nuget/v/DotWasm.svg)](https://www.nuget.org/packages/DotWasm)
+[![Releases](https://img.shields.io/github/release/nuskey8/DotWasm.svg)](https://github.com/nuskey8/DotWasm/releases)
+[![license](https://img.shields.io/badge/LICENSE-MIT-green.svg)](LICENSE)
+
+English | [日本語](README_JA.md)
+
 > [!CAUTION]
 > DotWasm is currently in alpha. It is not suitable for production use and may undergo breaking changes without notice.
 
