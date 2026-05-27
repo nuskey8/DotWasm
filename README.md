@@ -170,11 +170,12 @@ DotWasm is designed to minimize dynamic GC allocations, but it is not currently 
 
 Below are benchmark results for converting a 128x128 image to grayscale.
 
-| Method   |        Mean |        Error |       StdDev |       Median |
-| -------- | ----------: | -----------: | -----------: | -----------: |
-| Wasmtime |    29.67 μs |     0.738 μs |     2.118 μs |     29.38 μs |
-| WaaS     | 4,795.02 μs |    95.451 μs |   188.410 μs |  4,734.40 μs |
-| DotWasm  | 9,854.45 μs | 1,080.753 μs | 3,169.660 μs | 11,046.08 μs |
+| Method   |         Mean |      Error |     StdDev |
+| -------- | -----------: | ---------: | ---------: |
+| Wasmtime |     20.79 us |   0.520 us |   1.493 us |
+| WaaS     |  4,713.03 us |  94.249 us | 141.067 us |
+| DotWasm  | 11,470.14 us | 217.310 us | 213.428 us |
+| WACS     | 14,586.17 us | 285.006 us | 279.914 us |
 
 The comparison used the following libraries:
 

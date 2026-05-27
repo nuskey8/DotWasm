@@ -88,7 +88,7 @@ public class GrayscaleBenchmark
             wacsFuncAddr,
             new Wacs.Core.Runtime.InvokerOptions()
         );
-        sourceImage.CopyTo(wacsMemory.Data[..ImageBytes]);
+        sourceImage.CopyTo(wacsMemory.Data.AsSpan()[..ImageBytes]);
     }
 
     [IterationCleanup]
@@ -104,7 +104,7 @@ public class GrayscaleBenchmark
         wasmtimeEngine.Dispose();
     }
 
-    [Benchmark(Description = "dotWasm")]
+    [Benchmark(Description = "DotWasm")]
     public void Bench_dotWasm()
     {
         dotWasmInstance.Invoke("grayscale_bench", [0, PixelCount], []);

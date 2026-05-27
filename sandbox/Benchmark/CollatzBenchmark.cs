@@ -80,7 +80,7 @@ public class CollatzBenchmark
         wasmtimeEngine.Dispose();
     }
 
-    [Benchmark(Description = "dotWasm")]
+    [Benchmark(Description = "DotWasm")]
     public void Bench_dotWasm()
     {
         dotWasmInstance.Invoke("collatz_bench", [10000], []);
