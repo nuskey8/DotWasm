@@ -10,5 +10,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
+
+    <!-- NuGet Packaging -->
+    <PackageId>DotWasm.Runtime</PackageId>
+    <PackageTags>wasm;interpreter</PackageTags>
+    <Description>Runtime implementation for DotWasm.</Description>
   </PropertyGroup>
 </Project>

@@ -8,5 +8,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
+
+    <!-- NuGet Packaging -->
+    <PackageId>DotWasm.Encoding</PackageId>
+    <PackageTags>wasm;interpreter</PackageTags>
+    <Description>Wasm binary decoding for DotWasm.</Description>
   </PropertyGroup>
 </Project>

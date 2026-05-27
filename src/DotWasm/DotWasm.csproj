@@ -9,5 +9,9 @@
     <TargetFrameworks>net11.0;net10.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- NuGet Packaging -->
+    <PackageId>DotWasm</PackageId>
+    <PackageTags>wasm;interpreter</PackageTags>
+    <Description>A WebAssembly runtime implemented in C# for .NET</Description>
   </PropertyGroup>
 </Project>

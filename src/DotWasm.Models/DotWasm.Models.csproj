@@ -4,5 +4,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
+
+    <!-- NuGet Packaging -->
+    <PackageId>DotWasm.Models</PackageId>
+    <PackageTags>wasm;interpreter</PackageTags>
+    <Description>Data models for DotWasm.</Description>
   </PropertyGroup>
 </Project>

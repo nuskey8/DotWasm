@@ -9,5 +9,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>preview</LangVersion>
+
+    <!-- NuGet Packaging -->
+    <PackageId>DotWasm.Validation</PackageId>
+    <PackageTags>wasm;interpreter</PackageTags>
+    <Description>Validation logic for DotWasm.</Description>
   </PropertyGroup>
 </Project>
