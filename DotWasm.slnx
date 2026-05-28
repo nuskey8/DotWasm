@@ -11,6 +11,7 @@
     <Project Path="src/DotWasm/DotWasm.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/DotWasm.Tests/DotWasm.Tests.csproj" />
     <Project Path="tests/DotWasm.SpecTest/DotWasm.SpecTest.csproj" />
   </Folder>
 </Solution>
