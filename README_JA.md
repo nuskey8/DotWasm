@@ -30,7 +30,7 @@ DotWasmを利用するには.NET 10.0以上が必要です。
 ### .NET CLI
 
 ```bash
-dotnet add DotWasm
+dotnet add package DotWasm
 ```
 
 ## パッケージ構成
