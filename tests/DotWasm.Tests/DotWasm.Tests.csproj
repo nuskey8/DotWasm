@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net11.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TUnit" Version="1.45.29" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\DotWasm.Encoding\DotWasm.Encoding.csproj" />
+    <ProjectReference Include="..\..\src\DotWasm.Models\DotWasm.Models.csproj" />
+    <ProjectReference Include="..\..\src\DotWasm.Runtime\DotWasm.Runtime.csproj" />
+    <ProjectReference Include="..\..\src\DotWasm.Validation\DotWasm.Validation.csproj" />
+  </ItemGroup>
+</Project>
