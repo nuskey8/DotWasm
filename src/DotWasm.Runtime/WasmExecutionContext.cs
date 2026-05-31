@@ -31,7 +31,7 @@ internal enum ControlFrameKind : byte
     TryTable,
 }
 
-internal sealed class WasmExecutionContext
+internal sealed partial class WasmExecutionContext
 {
     const int MaxCallStackDepth = 256;
 
@@ -145,6 +145,54 @@ internal sealed class WasmExecutionContext
         int resultCount
     )
     {
+        var localRegisterCount = localCount + argCount;
+        var localStackBase = localStack.Count;
+        Span<WasmValue> locals = localStack.Allocate(localRegisterCount);
+        var arguments = valueStack.Take(argCount);
+        arguments.CopyTo(locals);
+
+        var compiledExpression = instance.UseInterpreter
+            ? WasmCompiledExpression.Unsupported
+            : WasmCompiledExpression.GetOrCompile(expression);
+        if (compiledExpression.IsCompiled)
+        {
+            var functionStackBase = valueStack.Count - argCount;
+
+            try
+            {
+                var frame = new WasmExecutionFrame(
+                    instance,
+                    locals,
+                    functionStackBase,
+                    resultCount
+                );
+                var result = compiledExpression.Invoke(this, ref frame);
+                switch (result.Kind)
+                {
+                    case WasmOpResultKind.Continue:
+                        return null;
+                    case WasmOpResultKind.Return:
+                        return null;
+                    case WasmOpResultKind.TailCall:
+                        return result.TailCall;
+                    case WasmOpResultKind.Branch when result.LabelIndex == 0:
+                        PreserveValues(functionStackBase, resultCount);
+                        return null;
+                    case WasmOpResultKind.Branch:
+                        WasmTrapException.Throw("Invalid branch target.");
+                        return null;
+                    default:
+                        return null;
+                }
+            }
+            finally
+            {
+                locals.Clear();
+                localStack.Truncate(localStackBase);
+            }
+        }
+
+        int localBase = 0;
         var instructions = expression.Instructions;
         var controlBase = controlStack.Count;
         controlStack.Push(
@@ -159,13 +207,6 @@ internal sealed class WasmExecutionContext
                 EndCodeOffset = instructions.Length - 1,
             }
         );
-
-        var localRegisterCount = localCount + argCount;
-        var localStackBase = localStack.Count;
-        Span<WasmValue> locals = localStack.Allocate(localRegisterCount);
-        var arguments = valueStack.Take(argCount);
-        arguments.CopyTo(locals);
-        int localBase = 0;
 
         try
         {
@@ -4978,18 +5019,24 @@ internal sealed class WasmExecutionContext
     {
         var valueCount =
             target.Kind == ControlFrameKind.Loop ? target.ParameterCount : target.ResultCount;
+        PreserveValues(target.StackBase, valueCount);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    void PreserveValues(int stackBase, int valueCount)
+    {
         if (valueCount == 0)
         {
-            valueStack.Truncate(target.StackBase);
+            valueStack.Truncate(stackBase);
             return;
         }
 
-        var buffer = ArrayPool<WasmValue>.Shared.Rent((int)valueCount);
+        var buffer = ArrayPool<WasmValue>.Shared.Rent(valueCount);
         try
         {
-            var results = buffer.AsSpan(0, (int)valueCount);
+            var results = buffer.AsSpan(0, valueCount);
             valueStack.Take(valueCount).CopyTo(results);
-            valueStack.Truncate(target.StackBase);
+            valueStack.Truncate(stackBase);
             valueStack.PushRange(results);
         }
         finally

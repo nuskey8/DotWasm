@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using BenchmarkDotNet.Attributes;
 
+[SimpleJob(1, 500, 100, 1)]
 public class CollatzBenchmark
 {
     byte[] loadedBytes;

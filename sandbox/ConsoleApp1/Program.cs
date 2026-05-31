@@ -35,5 +35,5 @@ var point = results[0].AsStruct();
 Console.WriteLine(point.GetField(0).I32);
 Console.WriteLine(point.GetField(1).I32);
 
-instance.Invoke("getX", [point], results);
+instance.Invoke("get_x", [point], results);
 Console.WriteLine(results[0].I32);

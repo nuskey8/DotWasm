@@ -190,7 +190,7 @@ public sealed class WasmLinker(WasmStore store)
     internal bool TryResolve(LinkerKey key, out LinkerItem item) =>
         items.TryGetValue(key, out item);
 
-    public WasmInstance Instantiate(WasmModule module)
+    public WasmInstance Instantiate(WasmModule module, bool useInterpreter = false)
     {
         WasmValidator.Validate(module);
 
@@ -327,7 +327,8 @@ public sealed class WasmLinker(WasmStore store)
             tableAddresses,
             memoryAddresses,
             globalAddresses,
-            tagAddresses
+            tagAddresses,
+            useInterpreter
         );
 
         for (int i = 0; i < module.Functions.Length; i++)
