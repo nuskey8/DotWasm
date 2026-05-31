@@ -10,6 +10,7 @@ public sealed class WasmInstance
 {
     readonly WasmModule module;
     readonly WasmLinker linker;
+    readonly bool useInterpreter;
 
     readonly FunctionAddress[] functions;
     readonly TableAddress[] tables;
@@ -25,6 +26,7 @@ public sealed class WasmInstance
     public WasmModule Module => module;
     public WasmLinker Linker => linker;
     public WasmStore Store => linker.Store;
+    public bool UseInterpreter => useInterpreter;
 
     internal bool IsDataSegmentDropped(int index) => droppedDataSegments[index];
 
@@ -70,11 +72,13 @@ public sealed class WasmInstance
         TableAddress[] tables,
         MemoryAddress[] memories,
         GlobalAddress[] globals,
-        TagAddress[] tags
+        TagAddress[] tags,
+        bool useInterpreter = false
     )
     {
         this.module = module;
         this.linker = linker;
+        this.useInterpreter = useInterpreter;
         this.functions = functions;
         this.tables = tables;
         this.memories = memories;

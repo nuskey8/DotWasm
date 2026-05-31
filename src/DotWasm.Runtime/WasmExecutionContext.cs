@@ -151,7 +151,9 @@ internal sealed partial class WasmExecutionContext
         var arguments = valueStack.Take(argCount);
         arguments.CopyTo(locals);
 
-        var compiledExpression = WasmCompiledExpression.GetOrCompile(expression);
+        var compiledExpression = instance.UseInterpreter
+            ? WasmCompiledExpression.Unsupported
+            : WasmCompiledExpression.GetOrCompile(expression);
         if (compiledExpression.IsCompiled)
         {
             var functionStackBase = valueStack.Count - argCount;
